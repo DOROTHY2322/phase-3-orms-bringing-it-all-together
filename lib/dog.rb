@@ -42,9 +42,15 @@ class Dog
       end
       def self.all
         sql = <<-SQL
-        SELECT * FROM dogs
+          SELECT * FROM dogs
         SQL
-        DB[:conn].execute(sql)
+        rows = DB[:conn].execute(sql)
+        dogs = []
+        rows.each do |row|
+          dog = Dog.new(id: row[0], name: row[1], breed: row[2])
+          dogs << dog
+        end
+        dogs
       end
       def self.find_by_name(name)
         sql = <<-SQL
@@ -55,12 +61,14 @@ class Dog
         end.first
       end
 
-      def find(id)
+      def self.find(id)
         sql = <<-SQL
-        SELECT*FROM dogs WHERE id = ? LIMIT 1
+          SELECT * FROM dogs WHERE id = ? LIMIT 1
         SQL
-        DB[:conn].execute(sql,id)[0]
+      
+        row = DB[:conn].execute(sql, id)[0]
         self.new_from_db(row)
       end
+      
   end
   
